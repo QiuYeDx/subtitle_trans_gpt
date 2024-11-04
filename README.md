@@ -23,14 +23,14 @@ npm install
 
 ### 1. 获取 OpenAI API 密钥
 
-请访问 [OpenAI 官网](https://openai.com/) 获取你的 API 密钥，并将其替换到代码中的 `API_KEY` 常量。
+请访问 [OpenAI 官网](https://openai.com/) 获取你的 API 密钥，并将其替换到`apiKey.json`中。
 
 ### 2. 运行脚本
 
 可以通过命令行运行脚本，并传入输入文件路径和可选模式参数。
 
 ```bash
-node your_script.js <输入文件路径> [模式]
+node main.js <输入文件路径> [模式]
 ```
 
 - `<输入文件路径>`：需要翻译的字幕文件路径（支持 `.srt`、`.lrc` 等格式）。
@@ -39,13 +39,13 @@ node your_script.js <输入文件路径> [模式]
 **示例：**
 
 ```bash
-node your_script.js subtitles.srt normal
+node main.js subtitles.srt normal
 ```
 
 或
 
 ```bash
-node your_script.js subtitles.srt sensitive
+node main.js subtitles.srt sensitive
 ```
 
 ### 3. 输出结果
