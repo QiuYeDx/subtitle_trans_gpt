@@ -6,7 +6,7 @@ const { encode } = require('gpt-3-encoder'); // 引入 GPT-3 Encoder
 // 读取 API 密钥
 const readApiKey = async () => {
     try {
-        const data = await fs.readFile(path.join(__dirname, 'apiKey.json'), 'utf-8');
+        const data = await fs.readFile(path.join(__dirname, '../../apiKey.json'), 'utf-8');
         const json = JSON.parse(data);
         if (!json.apiKey) {
             throw new Error('API 密钥为空，请在 apiKey.json 中设置 apiKey');
