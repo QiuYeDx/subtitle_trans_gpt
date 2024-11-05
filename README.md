@@ -14,12 +14,10 @@
 所有工具脚本都位于 `tools` 文件夹中：
 
 1. [`convertLrcToSrt.js`](#1-convertlrctosrtjs)：将双语 LRC 字幕文件转换为 SRT 格式，支持输出双语或仅中文字幕。
-
 2. [`chineseLrcToSrt.js`](#2-chineselrctosrtjs)：将仅包含中文字幕的 LRC 文件转换为 SRT 格式。
-
 3. [`convertToChineseLrc.js`](#3-converttochineselrcjs)：从双语 LRC 文件中提取中文字幕，生成新的 LRC 文件。
-
 4. [`lrc_trans.js`](#4-lrc_transjs)：使用 OpenAI API 将字幕文件翻译为中日双语字幕。
+5. [`srt_trans.js`](#5-srt_transjs)：使用 OpenAI API 将 SRT 字幕文件翻译为中日双语字幕。
 
 ---
 
@@ -184,6 +182,62 @@ node lrc_trans.js <input_subtitle_file> [mode]
 
 ---
 
+### 5. `srt_trans.js`
+
+#### 功能
+
+使用 OpenAI API 将 SRT 字幕文件翻译为中日双语字幕。该脚本提供了常规模式和敏感内容模式的支持。
+
+#### 前提条件
+
+- **OpenAI API 密钥**：需要一个有效的 OpenAI API 密钥。
+- **安装依赖**：运行 `npm install` 安装所需依赖。
+
+#### 配置 API 密钥
+
+在项目目录下创建一个名为 `apiKey.json` 的文件，内容如下：
+
+```json
+{
+  "apiKey": "your-openai-api-key"
+}
+```
+
+将 `"your-openai-api-key"` 替换为您的实际 OpenAI API 密钥。
+
+#### 使用方法
+
+```bash
+node srt_trans.js <input_subtitle_file> [mode]
+```
+
+- `<input_subtitle_file>`：**（必需）** 要翻译的字幕文件路径（支持 `.srt` 格式）。
+- `[mode]`：**（可选）** 翻译模式，可选值：
+  - `normal`：常规模式，适用于一般内容（默认）。
+  - `sensitive`：敏感内容模式，针对敏感内容使用较低的每次请求令牌限制。
+
+#### 示例
+
+1. **使用常规模式翻译**
+
+   ```bash
+   node srt_trans.js subtitles.srt
+   ```
+
+2. **使用敏感模式翻译**
+
+   ```bash
+   node srt_trans.js subtitles.srt sensitive
+   ```
+
+#### 注意事项
+
+- **费用估算**：脚本会根据输入和输出的 token 数量估算费用，并在控制台显示。
+- **错误处理**：如果翻译失败，未成功的部分将保存到 `<input_filename>_failed.srt` 文件中。
+- **令牌限制**：大型文件将自动拆分，以符合 OpenAI API 的令牌限制。
+
+---
+
 ## 安装依赖
 
 在开始之前，请确保已安装 Node.js 和 npm。然后在项目目录中运行以下命令安装所需依赖：
@@ -196,7 +250,10 @@ npm install
 
 ### Q1: 脚本支持哪些字幕格式？
 
-大部分脚本支持 `.lrc` 格式，`lrc_trans.js` 脚本同时支持 `.srt` 和 `.lrc` 等常见字幕格式。
+大部分脚本支持 `.lrc` 格式，其中：
+
+- lrc_trans.js` 脚本支持 `.lrc` 字幕格式。
+- srt_trans.js` 脚本支持 `.srt` 字幕格式。
 
 ### Q2: 如何确保 LRC 文件格式正确？
 
@@ -204,7 +261,7 @@ npm install
 
 ### Q3: 为什么需要 OpenAI API 密钥？
 
-`lrc_trans.js` 脚本需要使用 OpenAI API 进行翻译，因此需要提供有效的 API 密钥。
+`lrc_trans.js` 和 `srt_trans.js` 脚本需要使用 OpenAI API 进行翻译，因此需要提供有效的 API 密钥。
 
 ### Q4: 翻译费用是多少？
 
