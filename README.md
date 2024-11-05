@@ -16,7 +16,7 @@
 1. [`convertLrcToSrt.js`](#1-convertlrctosrtjs)：将双语 LRC 字幕文件转换为 SRT 格式，支持输出双语或仅中文字幕。
 2. [`chineseLrcToSrt.js`](#2-chineselrctosrtjs)：将仅包含中文字幕的 LRC 文件转换为 SRT 格式。
 3. [`convertToChineseLrc.js`](#3-converttochineselrcjs)：从双语 LRC 文件中提取中文字幕，生成新的 LRC 文件。
-4. [`lrc_trans.js`](#4-lrc_transjs)：使用 OpenAI API 将字幕文件翻译为中日双语字幕。
+4. [`lrc_trans.js`](#4-lrc_transjs)：使用 OpenAI API 将 LRC 字幕文件翻译为中日双语字幕。
 5. [`srt_trans.js`](#5-srt_transjs)：使用 OpenAI API 将 SRT 字幕文件翻译为中日双语字幕。
 
 ---
@@ -252,8 +252,8 @@ npm install
 
 大部分脚本支持 `.lrc` 格式，其中：
 
-- lrc_trans.js` 脚本支持 `.lrc` 字幕格式。
-- srt_trans.js` 脚本支持 `.srt` 字幕格式。
+- `lrc_trans.js` 脚本支持 `.lrc` 字幕格式。
+- `srt_trans.js` 脚本支持 `.srt` 字幕格式。
 
 ### Q2: 如何确保 LRC 文件格式正确？
 
