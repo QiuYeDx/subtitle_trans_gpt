@@ -30,8 +30,8 @@ fs.readFile(inputLrcFilePath, 'utf-8', (err, data) => {
 
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
-        // 匹配时间戳和文本
-        const match = line.match(/^\[(\d{2}:\d{2}\.\d{2})\](.*)/);
+        // 匹配时间戳和文本，支持任意位数的分钟数和可选的毫秒数
+        const match = line.match(/^\[(\d+:\d{2}(?:\.\d+)?)\](.*)/);
         if (match) {
             const timestamp = match[1];
             const text = match[2].trim();
@@ -40,10 +40,16 @@ fs.readFile(inputLrcFilePath, 'utf-8', (err, data) => {
             const nextLine = lines[i + 1] ? lines[i + 1].trim() : null;
             let nextMatch = null;
             if (nextLine) {
-                nextMatch = nextLine.match(/^\[(\d{2}:\d{2}\.\d{2})\](.*)/);
+                nextMatch = nextLine.match(/^\[(\d+:\d{2}(?:\.\d+)?)\](.*)/);
             }
 
-            if (nextMatch && nextMatch[1] === timestamp) {
+            const currentTime = parseTimestamp(timestamp);
+            let nextTime = null;
+            if (nextMatch) {
+                nextTime = parseTimestamp(nextMatch[1]);
+            }
+
+            if (nextMatch && currentTime === nextTime) {
                 // 存在下一行，且时间戳相同，假设第二行是中文
                 const chineseText = nextMatch[2].trim();
                 outputLines.push(`[${timestamp}]${chineseText}`);
@@ -73,4 +79,23 @@ fs.readFile(inputLrcFilePath, 'utf-8', (err, data) => {
 // 辅助函数：判断字符串是否包含中文字符
 function containsChinese(text) {
     return /[\u4e00-\u9fa5]/.test(text);
+}
+
+// 辅助函数：将时间戳转换为毫秒数
+function parseTimestamp(timestamp) {
+    const match = timestamp.match(/^(\d+):(\d{2})(?:\.(\d+))?$/);
+    if (!match) return null;
+    const minutes = parseInt(match[1], 10);
+    const seconds = parseInt(match[2], 10);
+    let milliseconds = 0;
+    if (match[3]) {
+        let ms = match[3];
+        if (ms.length > 3) {
+            ms = ms.slice(0, 3); // 取前三位，忽略多余的位数
+        } else {
+            ms = ms.padEnd(3, '0'); // 不足三位，补充为三位
+        }
+        milliseconds = parseInt(ms, 10);
+    }
+    return minutes * 60 * 1000 + seconds * 1000 + milliseconds;
 }

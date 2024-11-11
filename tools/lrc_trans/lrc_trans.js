@@ -35,7 +35,7 @@ const setMaxTokens = (mode) => {
             return 100; // 敏感内容
         case 'normal':
         default:
-            return 3000; // 常规内容
+            return 1200; // 常规内容
     }
 };
 
@@ -90,6 +90,7 @@ const translateSubtitles = async (subtitles, previousTranslation = '', maxTokens
 
             return output;
         } catch (error) {
+            console.log("🚀 ~ translateSubtitles ~ error:", error);
             attempts++;
             console.error(`翻译请求失败，尝试 ${attempts}/${MAX_RETRIES} 次:`, error.message);
             if (attempts >= MAX_RETRIES) {
