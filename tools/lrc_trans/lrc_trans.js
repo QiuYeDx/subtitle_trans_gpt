@@ -3,7 +3,7 @@ const axios = require('axios');
 const path = require('path');
 const { encode } = require('gpt-3-encoder'); // 引入 GPT-3 Encoder
 
-const { apiKey, apiEndPoint, apiModel } = require('../../config');
+const { apiKey, apiEndPoint, apiModel } = require('../../config.js');
 
 // 设置 API 端点
 const ENDPOINT = apiEndPoint;

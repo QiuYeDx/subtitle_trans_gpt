@@ -1,13 +1,13 @@
 const deepSeekApiKey = "";
 const openaiApiKey = "";
 
-enum Model {
-  DeepSeek = "deepSeek",
-  OpenAI = "openai",
-}
+const Model = Object.freeze({
+  DeepSeek: "deepSeek",
+  OpenAI: "openai",
+});
 
 // 获取 API Key
-const getApiKeyByModel = (model: Model) => {
+const getApiKeyByModel = (model) => {
   switch (model) {
     case Model.DeepSeek:
       return deepSeekApiKey;
@@ -19,10 +19,10 @@ const getApiKeyByModel = (model: Model) => {
 };
 
 // 获取 API EndPoint
-const getApiEndPoint = (model: Model) => {
+const getApiEndPoint = (model) => {
   switch (model) {
     case Model.DeepSeek:
-      return "https://api.deepseek.com";
+      return "https://api.deepseek.com/v1/chat/completions";
     case Model.OpenAI:
       return "https://api.openai.com/v1/chat/completions";
     default:
@@ -31,7 +31,7 @@ const getApiEndPoint = (model: Model) => {
 };
 
 // 获取 API Model
-const getApiModel = (model: Model) => {
+const getApiModel = (model) => {
   switch (model) {
     case Model.DeepSeek:
       return "deepseek-chat";
@@ -45,8 +45,14 @@ const getApiModel = (model: Model) => {
 // 切换当前使用的模型
 const currModel = Model.DeepSeek;
 
-export const apiKey = getApiKeyByModel(currModel);
+const apiKey = getApiKeyByModel(currModel);
 
-export const apiEndPoint = getApiEndPoint(currModel);
+const apiEndPoint = getApiEndPoint(currModel);
 
-export const apiModel = getApiModel(currModel);
+const apiModel = getApiModel(currModel);
+
+module.exports = {
+  apiKey,
+  apiEndPoint,
+  apiModel
+}
