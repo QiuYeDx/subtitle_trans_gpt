@@ -3,23 +3,12 @@ const axios = require('axios');
 const path = require('path');
 const { encode } = require('gpt-3-encoder'); // 引入 GPT-3 Encoder
 
-// 读取 API 密钥
-const readApiKey = async () => {
-  try {
-    const data = await fs.readFile(path.join(__dirname, '../../apiKey.json'), 'utf-8');
-    const json = JSON.parse(data);
-    if (!json.apiKey) {
-      throw new Error('API 密钥为空，请在 apiKey.json 中设置 apiKey');
-    }
-    return json.apiKey;
-  } catch (error) {
-    console.error('读取 API 密钥失败:', error.message);
-    process.exit(1);
-  }
-};
+const { apiKey, apiEndPoint, apiModel } = require('../../config');
 
-// 设置 OpenAI API 密钥和端点
-const ENDPOINT = 'https://api.openai.com/v1/chat/completions';
+// 设置 API 端点
+const ENDPOINT = apiEndPoint;
+// 设置 API Model
+const API_MODEL = apiModel;
 
 // 定义费用标准
 const COST_PER_MIL_INPUT = 2.50; // 每百万输入 token 的费用
@@ -61,7 +50,7 @@ const translateSubtitles = async (subtitles, previousTranslation = '', maxTokens
     try {
       const inputTokens = countTokens(subtitles);
       const response = await axios.post(ENDPOINT, {
-        model: 'gpt-4o', // 使用 gpt-4o 模型
+        model: API_MODEL,
         messages: [{
           role: 'user',
           content: `将以下字幕内容翻译为中日双语，每行日语后面紧跟着对应的中文，保持连贯性，格式如下:\n` +
@@ -209,7 +198,6 @@ const main = async () => {
     process.exit(1);
   }
 
-  const apiKey = await readApiKey(); // 读取 API 密钥
   const maxTokens = setMaxTokens(mode); // 设置最大 token 数
   const startTime = Date.now(); // 开始计时
 
