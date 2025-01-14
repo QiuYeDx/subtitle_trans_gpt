@@ -3,7 +3,7 @@ const axios = require('axios');
 const path = require('path');
 const { encode } = require('gpt-3-encoder'); // 引入 GPT-3 Encoder
 
-const { apiKey, apiEndPoint, apiModel } = require('../../config.js');
+const { apiKey, apiEndPoint, apiModel, apiCost } = require('../../config.js');
 
 // 设置 API 端点
 const ENDPOINT = apiEndPoint;
@@ -11,8 +11,8 @@ const ENDPOINT = apiEndPoint;
 const API_MODEL = apiModel;
 
 // 定义费用标准
-const COST_PER_MIL_INPUT = 2.50; // 每百万输入token的费用
-const COST_PER_MIL_OUTPUT = 10.00; // 每百万输出token的费用
+const COST_PER_MIL_INPUT = apiCost.input; // 每百万输入token的费用
+const COST_PER_MIL_OUTPUT = apiCost.output; // 每百万输出token的费用
 
 // 重试次数
 const MAX_RETRIES = 3;
