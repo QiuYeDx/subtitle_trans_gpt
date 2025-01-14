@@ -2,18 +2,16 @@ const fs = require('fs').promises; // 使用 promises API
 const axios = require('axios');
 const path = require('path');
 const { encode } = require('gpt-3-encoder'); // 引入 GPT-3 Encoder
-
+const chalk = require('chalk'); // 引入 chalk 库
 const { apiKey, apiEndPoint, apiModel, apiCost } = require('../../config.js');
 
 // 设置 API 端点
 const ENDPOINT = apiEndPoint;
 // 设置 API Model
 const API_MODEL = apiModel;
-
 // 定义费用标准
 const COST_PER_MIL_INPUT = apiCost.input; // 每百万输入token的费用
 const COST_PER_MIL_OUTPUT = apiCost.output; // 每百万输出token的费用
-
 // 重试次数
 const MAX_RETRIES = 3;
 
@@ -33,7 +31,7 @@ const readSubtitles = async (filePath) => {
     try {
         return await fs.readFile(filePath, 'utf-8');
     } catch (error) {
-        console.error('读取字幕文件失败:', error);
+        console.error(chalk.red('读取字幕文件失败:'), error);
         throw error;
     }
 };
@@ -54,10 +52,10 @@ const translateSubtitles = async (subtitles, previousTranslation = '', maxTokens
                 messages: [{
                     role: 'user',
                     content: `将以下字幕内容翻译为中日双语，每行日语后面紧跟着对应的中文，保持连贯性，格式如下:\n` +
-                             `[00:00.05]おねだりにしてみてほしいの\n` +
-                             `[00:00.05]想让我撒娇试试看\n` +
-                             `前面的翻译内容是:\n${previousTranslation}\n` +
-                             `请处理以下内容:\n\n${subtitles}`
+                        `[00:00.05]おねだりにしてみてほしいの\n` +
+                        `[00:00.05]想让我撒娇试试看\n` +
+                        `前面的翻译内容是:\n${previousTranslation}\n` +
+                        `请处理以下内容:\n\n${subtitles}`
                 }],
                 max_tokens: 3500, // 这里不用改
             }, {
@@ -66,7 +64,6 @@ const translateSubtitles = async (subtitles, previousTranslation = '', maxTokens
                     'Content-Type': 'application/json',
                 },
             });
-
             const output = response.data.choices[0].message.content;
             const outputTokens = countTokens(output);
 
@@ -75,15 +72,14 @@ const translateSubtitles = async (subtitles, previousTranslation = '', maxTokens
             const outputCost = (outputTokens / 1_000_000) * COST_PER_MIL_OUTPUT;
             const totalCost = inputCost + outputCost;
 
-            console.log(`输入 Tokens: ${inputTokens}, 输出 Tokens: ${outputTokens}, 大致花费: $${totalCost.toFixed(2)}`);
-
+            console.log(chalk.blue(`输入 Tokens: ${inputTokens}`), chalk.green(`输出 Tokens: ${outputTokens}`), chalk.yellow(`大致花费: $${totalCost.toFixed(4)}`));
             return output;
         } catch (error) {
-            console.log("🚀 ~ translateSubtitles ~ error:", error);
+            console.log(chalk.red("🚀 ~ translateSubtitles ~ error:"), error);
             attempts++;
-            console.error(`翻译请求失败，尝试 ${attempts}/${MAX_RETRIES} 次:`, error.message);
+            console.error(chalk.yellow(`翻译请求失败，尝试 ${attempts}/${MAX_RETRIES} 次:`), error.message);
             if (attempts >= MAX_RETRIES) {
-                console.warn('所有尝试均失败，跳过该部分翻译。');
+                console.warn(chalk.red('所有尝试均失败，跳过该部分翻译。'));
                 return null; // 返回null以指示失败
             }
         }
@@ -94,7 +90,6 @@ const translateSubtitles = async (subtitles, previousTranslation = '', maxTokens
 const splitSubtitles = (subtitles, maxTokens) => {
     const parts = [];
     let currentPart = '';
-
     const lines = subtitles.split('\n');
     for (const line of lines) {
         const tokens = countTokens(line);
@@ -105,11 +100,9 @@ const splitSubtitles = (subtitles, maxTokens) => {
             currentPart += (currentPart ? '\n' : '') + line; // 继续添加到当前部分
         }
     }
-
     if (currentPart) {
         parts.push(currentPart); // 添加最后一部分
     }
-
     return parts;
 };
 
@@ -118,7 +111,7 @@ const saveTranslatedSubtitles = async (translatedContent, outputPath) => {
     try {
         await fs.writeFile(outputPath, translatedContent, 'utf-8');
     } catch (error) {
-        console.error('保存翻译结果失败:', error);
+        console.error(chalk.red('保存翻译结果失败:'), error);
         throw error;
     }
 };
@@ -127,9 +120,9 @@ const saveTranslatedSubtitles = async (translatedContent, outputPath) => {
 const saveFailedTranslations = async (failedContent, outputPath) => {
     try {
         await fs.writeFile(outputPath, failedContent, 'utf-8');
-        console.log(`未成功翻译的部分已保存到 ${outputPath}`);
+        console.log(chalk.green(`未成功翻译的部分已保存到 ${outputPath}`));
     } catch (error) {
-        console.error('保存未成功翻译部分失败:', error);
+        console.error(chalk.red('保存未成功翻译部分失败:'), error);
     }
 };
 
@@ -137,9 +130,8 @@ const saveFailedTranslations = async (failedContent, outputPath) => {
 const main = async () => {
     const inputFilePath = process.argv[2]; // 从命令行参数获取输入文件路径
     const mode = process.argv[3] || 'normal'; // 获取模式参数，默认为 'normal'
-
     if (!inputFilePath) {
-        console.error('请提供输入文件路径。');
+        console.error(chalk.red('请提供输入文件路径。'));
         process.exit(1);
     }
 
@@ -150,14 +142,13 @@ const main = async () => {
         const subtitles = await readSubtitles(inputFilePath);
         const subtitleParts = splitSubtitles(subtitles, maxTokens);
         const totalParts = subtitleParts.length;
-
         const translatedParts = [];
         const failedParts = []; // 存储失败的部分
         let previousTranslation = ''; // 保存上一部分翻译的最后一小段
 
         for (let i = 0; i < totalParts; i++) {
             const part = subtitleParts[i];
-            console.log(`正在翻译部分 ${i + 1} / ${totalParts}，输入 Tokens: ${countTokens(part)}`);
+            console.log(chalk.cyan(`[翻译进度]`), `正在翻译部分`, chalk.yellow(`${i + 1}`), `/`, chalk.yellow(`${totalParts}`), `，输入 Tokens:`, chalk.green(`${countTokens(part)}`));
             const translatedPart = await translateSubtitles(part, previousTranslation, maxTokens, apiKey);
             if (translatedPart) {
                 translatedParts.push(translatedPart); // 只有在成功时添加
@@ -202,9 +193,9 @@ const main = async () => {
 
         const endTime = Date.now(); // 结束计时
         const duration = ((endTime - startTime) / 1000).toFixed(2); // 转换为秒
-        console.log(`翻译完成，结果已保存到 ${outputFilePath}，用时: ${duration}秒`);
+        console.log(chalk.green(`[翻译完成]`), `结果已保存到`, chalk.blue(`${outputFilePath}`), `，用时:`, chalk.yellow(`${duration}`), `秒`);
     } catch (error) {
-        console.error('主函数执行失败:', error);
+        console.error(chalk.red('主函数执行失败:'), error);
     }
 };
 
